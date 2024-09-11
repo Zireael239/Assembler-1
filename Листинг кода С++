@@ -1,0 +1,157 @@
+#include <iostream>
+#include <string>
+using namespace std;
+template <typename T>
+class Stack {
+private:
+    T* elements;
+    size_t capacity;
+    size_t topIndex;
+
+public:
+    Stack() : capacity(10), topIndex(-1) {
+        elements = new T[capacity];
+    }
+
+    ~Stack() {
+        delete[] elements;
+    }
+
+    void push(const T& value) {
+        if (topIndex + 1 >= capacity) {
+            // Увеличиваем размер массива вдвое
+            capacity *= 2;
+            T* newElements = new T[capacity];
+            for (size_t i = 0; i <= topIndex; ++i) {
+                newElements[i] = elements[i];
+            }
+            delete[] elements;
+            elements = newElements;
+        }
+        elements[++topIndex] = value;
+    }
+
+    void pop() {
+        if (topIndex >= 0) {
+            --topIndex;
+        }
+    }
+
+    T& top() {
+        if (topIndex >= 0) {
+            return elements[topIndex];
+        }
+        throw std::out_of_range("Stack is empty");
+    }
+
+    bool empty() const {
+        return (topIndex == -1);
+    }
+
+    size_t size() const {
+        return (topIndex + 1);
+    }
+};
+
+
+int main() {
+    system("chcp 65001");
+    Stack<string> operands;
+    std::string a;
+    int temp_count=1;
+    char temp_mas[(a.length())];
+    string temp;
+    bool exit=true;
+    while (exit) {
+        cout << endl;
+        cout << "Справка по управлению программой." << endl;
+        cout << "1)Операнды должны представляться буквами латинского алфавита (A-Z)." << endl;
+        cout << "2)Возможные операнды: +, -, *, /." << endl;
+        cout << "В постфиксной записи операция записывается после двух операндов." << endl;
+        cout << "Постфиксная форма записи выражений может выглядеть так: " << endl;
+        cout << "-> ABC+*DE-/  " << endl;
+        cout << "-> XY+Z- " << endl;
+        cout << "-> AB+C+D+ и т.д. \n" << endl;
+        cout << "Пожалуйста, введите выражение в постфиксной форме : ";
+        cin>>a;
+
+        //цикл для проверки корректности введенного выражения
+        int operation_count = 0;
+        for (char c : a) {
+            if (c == '+' || c == '-' || c == '*' || c == '/')
+            {
+                operation_count++;
+            }
+        }
+
+        //если кол-во операндов на 1 меньше операций - ок, иначе - ошибка
+        int operandy = a.length() - operation_count;
+        if (operandy >= 2) {
+            int raznica = operandy - operation_count;
+            if (raznica == 1) {
+                cout << "Формула корректна. Последовательность шагов решения: \n" << endl;
+                for (int i = 0; i < a.length(); i++) {
+                    if (isalpha(a[i])) {
+                        operands.push(string(1, a[i]));
+                    } else {
+                        temp;
+                        string op1;
+                        string op2;
+                        op2 = operands.top();
+                        operands.pop();
+                        op1 = operands.top();
+                        operands.pop();
+                        temp = "T" + to_string(temp_count++);
+                        operands.push(temp);
+                        switch (a[i]) {
+                            case '+':
+                                cout << "LD " << op1 << endl;
+                                cout << "AD " << op2 << endl;
+                                break;
+                            case '-':
+                                cout << "LD " << op1 << endl;
+                                cout << "SB " << op2 << endl;
+                                break;
+                            case '*':
+                                cout << "LD " << op1 << endl;
+                                cout << "ML " << op2 << endl;
+                                break;
+                            case '/':
+                                cout << "LD " << op1 << endl;
+                                cout << "DV " << op2 << endl;
+                                break;
+                        }
+                        cout << "ST " << temp << endl;
+                    }
+                }
+
+            }
+            else {
+                cout << "Ошибка: некорректный ввод." << endl;
+                cout << "В постфиксной записи операция записывается после двух операндов." << endl;
+                cout << "Число операндов должно быть на 1 больше числа операций." << endl;
+                cout << "Попробуйте снова." << endl;
+            }
+
+            cout << endl;
+            cout << "Хотите закончить ввод? Введите 'y' – если да или 'n' - если нет" << endl;
+            char vihod;
+            cin >> vihod;
+            if (vihod == 'y') {
+                exit = false;
+            }
+
+            raznica = 1;
+            operandy = 0;
+            operation_count = 0;
+        }
+
+        else {
+            cout << "Ошибка: некорректный ввод." << endl;
+            cout << "Число операндов должно быть больше 1. Попробуйте снова." << endl;
+        }
+        temp_count=0;
+    }
+
+    return 0;
+}
